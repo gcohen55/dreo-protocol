@@ -15,7 +15,7 @@ enum class DreoDatapointType : uint8_t {
   // RAW = 0x00,      // variable length
   BOOLEAN = 0x01,  // 1 byte (0/1)
   INTEGER = 0x02,  // 4 byte
-  // STRING = 0x03,   // variable length
+  STRING = 0x03,   // variable length; skipped without numeric listener updates
   ENUM = 0x04,     // 1 byte
   // BITMASK = 0x05,  // 1/2/4 bytes
 };

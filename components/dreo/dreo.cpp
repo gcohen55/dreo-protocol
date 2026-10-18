@@ -251,6 +251,12 @@ void Dreo::handle_datapoints_(const uint8_t *buffer, size_t len) {
         datapoint.value_enum = data[0];
         ESP_LOGD(TAG, "Datapoint %u update to %d", datapoint.id, datapoint.value_enum);
         break;
+      case DreoDatapointType::STRING:
+        // Skip bounds-checked strings without dropping later numeric updates.
+        // Strings are not stored or delivered to numeric datapoint listeners.
+        len -= data_size + 5;
+        buffer = data + data_size;
+        continue;
       default:
         ESP_LOGW(TAG, "Datapoint %u has unknown type %#02hhX", datapoint.id, static_cast<uint8_t>(datapoint.type));
         return;

@@ -1,0 +1,75 @@
+# Dreo DR-HAF004S air circulator with the original MBL01 Wi-Fi module.
+# Do not confuse this with the DR-HTF004S tower fan (different protocol).
+# Findings, validation limits and capture instructions:
+# protocol/dr-haf004s/README.md
+#
+# When migrating an existing ESPHome installation, retain its esphome.name,
+# API key, OTA credentials and Wi-Fi settings rather than changing identity.
+esphome:
+  name: dreo-haf004s-mbl01
+  friendly_name: "Dreo HAF004S MBL01"
+  platformio_options:
+    board_build.bkcrypt_coeffs: "00000000000000000000000000000000"
+    board_build.bkota.key: "0123456789ABCDEF0123456789ABCDEF"
+    board_build.bkota.iv: "0123456789ABCDEF"
+    board_flash.calibration: "0x1E0000+0x1000"
+    board_flash.download: "0x132000+0xAE000"
+
+external_components:
+  - source: github://davidc/dreo-protocol
+
+bk72xx:
+  board: generic-bk7231n-qfn32-tuya
+  framework:
+    version: latest
+
+logger:
+  # UART1 belongs to the appliance MCU, not the serial logger.
+  baud_rate: 0
+
+api:
+  encryption:
+    key: !secret dreo_haf004s_api_key
+
+ota:
+  - platform: esphome
+    password: !secret dreo_haf004s_ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Dreo-HAF004S"
+    password: !secret dreo_haf004s_ap_password
+
+captive_portal:
+
+uart:
+  tx_pin: TX1
+  rx_pin: RX1
+  baud_rate: 115200
+
+dreo:
+
+fan:
+  - id: fan_entity
+    name: "Fan"
+    platform: dreo
+    # Read the MCU state at startup; do not replay stored speed/oscillation.
+    restore_mode: NO_RESTORE
+    switch_datapoint: 1
+    speed_datapoint: 4
+    speed_count: 9
+    # No oscillation_datapoint: a boolean cannot represent the two axes.
+
+select:
+  - id: oscillation_mode
+    name: "Oscillation Mode"
+    platform: dreo
+    enum_datapoint: 24
+    optimistic: false  # Publish MCU-confirmed state, not the requested value.
+    options:
+      0: "Off"
+      1: "Horizontal"
+      2: "Vertical"
+      3: "Both"

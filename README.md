@@ -16,10 +16,24 @@ into OTA mode (hold the oscillation button for 5 seconds until the countdown end
 and visit http://192.168.0.1 and upload the file. I have tested this allows me to install a functioning ESPhome
 although I haven't tested the fan functionality - although that should be fine 
 
+## DR-HAF004S air circulator
+
+The [MBL01 example](example-dreo-haf004s-mbl01.yaml) uses fan speed DP4 (1–9)
+and an **Oscillation Mode** select on DP24: Off, Horizontal, Vertical, Both.
+It does not reuse the tower fan's datapoint map. See the
+[protocol notes, raw captures and test instructions](protocol/dr-haf004s/README.md)
+for confirmed mappings, unknown fields and recovery limitations.
+
+The parser skips bounds-checked string datapoint values (type `03`) rather
+than aborting the report, so strings preceding speed/oscillation do not hide
+those updates. Other unknown types retain their warning-and-stop behavior.
+This is not general string-datapoint entity support.
+
 ## Tested models
 
 | Model      | Type  | Module  | Config | Status |
 |------------|-------|---------|--------|--------|
+| DR-HAF004S | Air circulator | MBL01 (original) | [example-dreo-haf004s-mbl01.yaml](example-dreo-haf004s-mbl01.yaml) | Tested ESPHome on the original module: speed and four-state horizontal/vertical oscillation command/report round trips. Other features are not mapped. [Protocol findings and validation limits](protocol/dr-haf004s/README.md). |
 | DR-HTF001S | Tower | -       | | Untested, but I believe this is an earlier version of HTF018S. Reports welcome. |
 | DR-HTF004S | Tower | MBL02   | | Uses a different protocol, will not work. See [dreo-cloudcutter](https://github.com/ouaibe/dreo-cloudcutter) instead. |
 | DR-HTF018S | Tower | MBL01 (original) | [example-dreo-htf018s-mbl01.yaml](example-dreo-htf018s-mbl01.yaml) | Tested ESPhome installs okay, not tested fan functionality. Reports welcome. |
